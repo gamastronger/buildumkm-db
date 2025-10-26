@@ -557,7 +557,7 @@ const LandingPage = () => {
       <Footer />
 
       {/* ChatBot */}
-      {import.meta.env.VITE_ENABLE_CHATBOT === 'true' && <ChatBot />}
+      <ChatBot />
     </div>
   );
 };
