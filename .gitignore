@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -28,3 +34,5 @@ AUTH_GUIDE.md
 IMPLEMENTATION_SUMMARY.md
 CREDENTIALS.md
 QUICK_LOGIN.md
+BACKEND_READY.md
+BACKEND_INTEGRATION.md
