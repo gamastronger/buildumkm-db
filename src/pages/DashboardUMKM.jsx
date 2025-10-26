@@ -6,41 +6,14 @@ import {
   BookOpen, 
   LogOut,
   User,
-  Send,
-  X,
   Sparkles
 } from 'lucide-react';
-import { useState } from 'react';
+import ChatBot from '../components/ChatBot';
 
 const DashboardUMKM = () => {
   const navigate = useNavigate();
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState([
-    {
-      type: 'bot',
-      message: 'Halo! Saya BumiBot, asisten AI BuildUMKM. Mau konsultasi website untuk bisnismu?'
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-
   const handleLogout = () => {
     navigate('/login');
-  };
-
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!inputMessage.trim()) return;
-
-    setChatMessages([...chatMessages, { type: 'user', message: inputMessage }]);
-    
-    setTimeout(() => {
-      setChatMessages(prev => [...prev, {
-        type: 'bot',
-        message: 'Terima kasih! Saya akan membantu Anda. Bisa ceritakan lebih detail tentang bisnis Anda?'
-      }]);
-    }, 1000);
-
-    setInputMessage('');
   };
 
   const projects = [
@@ -69,36 +42,35 @@ const DashboardUMKM = () => {
           </div>
 
           <nav className="space-y-2">
-            <a href="#" className="flex items-center space-x-3 px-4 py-3 bg-purple-50 text-purple-600 rounded-lg font-medium">
-              <Home className="w-5 h-5" />
-              <span>Beranda</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition">
-              <FolderOpen className="w-5 h-5" />
-              <span>Proyek Saya</span>
-            </a>
-            <a 
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsChatOpen(true);
-              }}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition"
-            >
-              <MessageCircle className="w-5 h-5" />
-              <span>Chatbot</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition">
-              <BookOpen className="w-5 h-5" />
-              <span>Panduan</span>
-            </a>
-            <button 
-              onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium transition w-full"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
+                <Link to="/dashboard-umkm" className="flex items-center space-x-3 px-4 py-3 bg-purple-50 text-purple-600 rounded-lg font-medium">
+                  <FolderOpen className="w-5 h-5" />
+                  <span>Proyek Saya</span>
+                </Link>
+              {/* Tombol Chatbot hanya sebagai info, ChatBot floating button akan muncul otomatis */}
+              <div className="flex items-center space-x-3 px-4 py-3 text-gray-400 rounded-lg font-medium cursor-not-allowed select-none">
+                <MessageCircle className="w-5 h-5" />
+                <span>Chatbot</span>
+              </div>
+              <Link to="/panduan" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition">
+                <BookOpen className="w-5 h-5" />
+                <span>Panduan</span>
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium transition w-full"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+                <div className="mt-6">
+                  <button
+                    onClick={() => navigate('/')}
+                    className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition w-full"
+                  >
+                    <Home className="w-5 h-5" />
+                    <span>Lihat BuildUMKM</span>
+                  </button>
+                </div>
           </nav>
         </div>
       </div>
@@ -223,72 +195,8 @@ const DashboardUMKM = () => {
         </div>
       </div>
 
-      {/* Chatbot Widget */}
-      {isChatOpen && (
-        <div className="fixed bottom-4 right-4 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-50">
-          {/* Chat Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-500 p-4 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold">BumiBot</h3>
-                  <p className="text-xs text-purple-100">Asisten AI BuildUMKM</p>
-                </div>
-              </div>
-              <button onClick={() => setIsChatOpen(false)} className="hover:bg-white/20 p-2 rounded-lg transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Chat Messages */}
-          <div className="h-96 overflow-y-auto p-4 space-y-4">
-            {chatMessages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                  msg.type === 'user' 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-gray-100 text-gray-900'
-                }`}>
-                  {msg.message}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Chat Input */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ketik pesan..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-              >
-                <Send className="w-5 h-5" />
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Floating Chatbot Button */}
-      {!isChatOpen && (
-        <button
-          onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group z-50"
-        >
-          <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </button>
-      )}
+      {/* ChatBot Floating Button & Window */}
+      <ChatBot />
     </div>
   );
 };
