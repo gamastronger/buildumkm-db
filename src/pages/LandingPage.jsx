@@ -20,6 +20,7 @@ import Navbar from '../components/Navbar';
 import ChatBot from '../components/ChatBot';
 import gamaImg from '../assets/images/gama.webp';
 import webumkm from '../assets/images/webumkm.png';
+import logo from '../assets/images/logo.png';
 import LazyImage from '../components/LazyImage';
 import Footer from '../components/Footer';
 
@@ -253,14 +254,13 @@ const LandingPage = () => {
               </Link>
             </div>
             <div className="relative">
-              <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl overflow-hidden">
+              <div className="w-64 h-64 rounded-2xl overflow-hidden flex items-center justify-center mx-auto">
                 <LazyImage
-                  src={gamaImg}
+                  src={logo}
                   alt="Team collaboration"
-                  className="w-full h-full object-cover mix-blend-overlay"
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-600 rounded-full opacity-20 blur-3xl"></div>
             </div>
           </motion.div>
         </div>
