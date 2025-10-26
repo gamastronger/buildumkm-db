@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
+import ChatBot from '../components/ChatBot';
 import gamaImg from '../assets/images/gama.webp';
 import webumkm from '../assets/images/webumkm.png';
 import LazyImage from '../components/LazyImage';
@@ -128,7 +129,7 @@ const LandingPage = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24">
         <canvas ref={canvasRef} className="absolute inset-0 z-0" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -554,6 +555,9 @@ const LandingPage = () => {
       </section>
 
       <Footer />
+
+      {/* ChatBot */}
+      {import.meta.env.VITE_ENABLE_CHATBOT === 'true' && <ChatBot />}
     </div>
   );
 };
