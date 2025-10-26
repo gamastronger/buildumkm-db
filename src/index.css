@@ -109,6 +109,15 @@ html {
   }
 }
 
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.6s ease-in;
 }

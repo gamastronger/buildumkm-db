@@ -8,23 +8,51 @@ import {
   Bot,
   User,
   Minimize2,
-  Sparkles
+  Sparkles,
+  RotateCcw
 } from 'lucide-react';
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: 'Halo! Saya BumiBot, asisten AI BuildUMKM. Saya siap membantu Anda dengan konsultasi website, paket hosting, dan fitur yang Anda butuhkan. Ada yang bisa saya bantu?',
-      timestamp: new Date()
+  // State animasi streaming
+  const [_streamAnimKey, setStreamAnimKey] = useState(0);
+
+  // Load messages from localStorage atau use default
+  const getInitialMessages = () => {
+    const saved = localStorage.getItem('bumibot-messages');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      } catch (e) {
+        console.error('Error loading messages:', e);
+      }
     }
-  ]);
+    return [
+      {
+        role: 'assistant',
+        content: 'Halo! Saya BumiBot, asisten AI BuildUMKM.\n\nSaya bisa membantu Anda dengan:\n\nKonsultasi website untuk bisnis Anda\nRekomendasi paket dan fitur yang sesuai\nInformasi harga mulai dari Rp 500rb\nStrategi digital marketing untuk UMKM\n\nAda yang bisa saya bantu?',
+        timestamp: new Date()
+      }
+    ];
+  };
+
+  const [messages, setMessages] = useState(getInitialMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    // Filter out streaming messages before saving
+    const messagesToSave = messages.filter(msg => !msg.isStreaming);
+    localStorage.setItem('bumibot-messages', JSON.stringify(messagesToSave));
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,6 +81,15 @@ const ChatBot = () => {
     setInputMessage('');
     setIsLoading(true);
 
+    // Create placeholder message for streaming
+    const placeholderMessage = {
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true
+    };
+    setMessages(prev => [...prev, placeholderMessage]);
+
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -64,37 +101,74 @@ const ChatBot = () => {
         },
         body: JSON.stringify({
           model: import.meta.env.VITE_OPENROUTER_MODEL || 'deepseek/deepseek-chat',
+          temperature: 0.7,
+          max_tokens: 1000,
+          top_p: 0.9,
+          frequency_penalty: 0.3,
+          presence_penalty: 0.2,
+          stream: true, // Enable streaming
           messages: [
             {
               role: 'system',
-              content: `Kamu adalah BumiBot, asisten AI untuk BuildUMKM - platform yang menghubungkan UMKM dengan developer lokal untuk pembuatan website. 
+              content: `Kamu adalah BumiBot, asisten AI profesional untuk BuildUMKM - platform yang menghubungkan UMKM Indonesia dengan developer lokal untuk pembuatan website.
 
-Tugas kamu:
-1. Membantu UMKM konsultasi kebutuhan website mereka
-2. Menyarankan fitur-fitur yang cocok untuk bisnis mereka
-3. Menjelaskan paket hosting dan harga
-4. Memberikan estimasi waktu pengerjaan
-5. Menjawab pertanyaan tentang proses pembuatan website
+PRINSIP KOMUNIKASI UTAMA:
+1. Jawab SESUAI kompleksitas pertanyaan - jika pertanyaan sederhana, jawab singkat dan to the point
+2. JANGAN gunakan emoji atau emoticon sama sekali
+3. JANGAN gunakan formatting markdown (*, _, #, backtick, dll)
+4. Jawab dengan bahasa Indonesia natural dan profesional
+5. Hanya berikan detail mendalam jika user meminta atau pertanyaan kompleks
 
-Informasi penting:
-- Paket Basic: Rp 500.000 (5 halaman, hosting 1 tahun, domain gratis)
-- Paket Pro: Rp 1.500.000 (10 halaman, hosting 1 tahun, domain gratis, SEO basic)
-- Paket Premium: Rp 3.000.000 (Unlimited halaman, hosting 1 tahun, domain gratis, SEO advanced, maintenance)
-- Waktu pengerjaan: 3-7 hari kerja
-- Fitur: Landing page, katalog produk, kontak form, WhatsApp integration, Google Maps, admin panel
+INFORMASI DASAR BUILDUMKM:
 
-PENTING: Berikan jawaban dalam format teks biasa tanpa menggunakan formatting markdown seperti:
-- JANGAN gunakan tanda bintang (*) atau garis bawah (_) untuk bold/italic
-- JANGAN gunakan tanda pagar (#) untuk heading
-- JANGAN gunakan backtick (\`) untuk code
-- JANGAN gunakan dash (-) atau angka untuk list
-- Gunakan HANYA teks biasa dengan paragraf dan kalimat yang jelas
-- Pisahkan informasi dengan baris baru untuk keterbacaan
-- Gunakan huruf kapital HANYA untuk penekanan kata penting
+Paket Layanan:
+BASIC Rp 500.000 - 5 halaman, hosting 1 tahun, domain gratis, desain responsif, SSL, SEO dasar
+PRO Rp 1.500.000 - 10 halaman, hosting 1 tahun, domain gratis, SEO optimization, WhatsApp integration, Google Analytics, blog
+PREMIUM Rp 3.000.000 - Unlimited halaman, hosting 1 tahun, domain premium, SEO advanced, payment gateway, admin panel custom, maintenance 3 bulan, priority support
 
-Berikan jawaban yang ramah, profesional, dan mudah dipahami oleh UMKM. Gunakan bahasa Indonesia yang sederhana dengan format teks biasa saja.`
+Fitur Umum:
+Landing page, katalog produk, form kontak, WhatsApp integration, Google Maps, galeri foto, testimoni, blog, social media integration, payment gateway, dashboard admin
+
+Proses Kerja:
+Waktu 3-7 hari kerja. Konsultasi dengan BumiBot, pilih template dan paket, developer kerjakan, review dan revisi maksimal 3x, launch dan training.
+
+CARA MENJAWAB:
+
+Untuk Pertanyaan Sederhana (salam, thanks, pertanyaan 1 kalimat):
+- Jawab langsung dalam 1-2 kalimat
+- Contoh: "Harga mulai dari Rp 500.000 untuk paket Basic."
+
+Untuk Pertanyaan Spesifik (fitur tertentu, paket tertentu):
+- Jawab fokus pada yang ditanyakan
+- Tambah 1 insight relevan jika perlu
+- Maksimal 3-4 kalimat
+
+Untuk Konsultasi Mendalam (cerita bisnis, minta saran lengkap):
+- Berikan analisis komprehensif
+- Rekomendasi spesifik sesuai konteks bisnis
+- Ajukan pertanyaan lanjutan untuk menggali kebutuhan
+
+FORMAT PENULISAN:
+- Tulis dalam paragraf natural seperti chat biasa
+- Gunakan huruf KAPITAL hanya untuk penekanan sangat penting
+- Pisahkan dengan baris baru untuk readability
+- TIDAK ADA emoji, simbol, atau formatting apapun
+- Langsung ke inti tanpa basa-basi berlebihan
+
+EXPERTISE:
+Web development, digital marketing, SEO, strategi bisnis online, transformasi digital UMKM, fitur e-commerce, payment gateway, dan tren digital terkini untuk UMKM Indonesia.
+
+HINDARI:
+- Jawaban bertele-tele untuk pertanyaan simpel
+- Penggunaan emoji atau emoticon
+- Format list dengan bullet atau numbering jika tidak diminta
+- Menyebut semua paket jika hanya ditanya 1 paket
+- Bahasa terlalu formal atau terlalu casual
+
+TUJUAN:
+Membantu UMKM dengan efisien, menjawab tepat sasaran, dan memberikan value maksimal tanpa informasi yang tidak relevan.`
             },
-            ...messages.map(msg => ({
+            ...messages.filter(msg => !msg.isStreaming).map(msg => ({
               role: msg.role,
               content: msg.content
             })),
@@ -110,23 +184,74 @@ Berikan jawaban yang ramah, profesional, dan mudah dipahami oleh UMKM. Gunakan b
         throw new Error('Failed to get response from AI');
       }
 
-      const data = await response.json();
-      const aiMessage = {
-        role: 'assistant',
-        content: data.choices[0].message.content,
-        timestamp: new Date()
-      };
+      // Turn off loading indicator as streaming starts
+      setIsLoading(false);
 
-      setMessages(prev => [...prev, aiMessage]);
+      // Process streaming response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices[0]?.delta?.content;
+              
+              if (content) {
+                accumulatedContent += content;
+                // Trigger fade-in animation for streaming
+                setStreamAnimKey(prev => prev + 1);
+                // Update the last message with streaming content
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  const lastMessage = newMessages[newMessages.length - 1];
+                  if (lastMessage && lastMessage.isStreaming) {
+                    lastMessage.content = accumulatedContent;
+                  }
+                  return newMessages;
+                });
+              }
+            } catch {
+              // Skip invalid JSON
+              continue;
+            }
+          }
+        }
+      }
+
+      // Finalize the message
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMessage = newMessages[newMessages.length - 1];
+        if (lastMessage && lastMessage.isStreaming) {
+          delete lastMessage.isStreaming;
+        }
+        return newMessages;
+      });
+
     } catch (error) {
       console.error('Chat error:', error);
-      const errorMessage = {
-        role: 'assistant',
-        content: 'Maaf, terjadi kesalahan. Silakan coba lagi atau hubungi tim support kami.',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
+      
+      // Remove placeholder and add error message
+      setMessages(prev => {
+        const filtered = prev.filter(msg => !msg.isStreaming);
+        return [...filtered, {
+          role: 'assistant',
+          content: 'Maaf, terjadi kesalahan. Silakan coba lagi atau hubungi tim support kami.',
+          timestamp: new Date()
+        }];
+      });
       setIsLoading(false);
     }
   };
@@ -143,6 +268,16 @@ Berikan jawaban yang ramah, profesional, dan mudah dipahami oleh UMKM. Gunakan b
       hour: '2-digit',
       minute: '2-digit'
     }).format(date);
+  };
+
+  const resetChat = () => {
+    const initialMessage = {
+      role: 'assistant',
+      content: 'Halo! Saya BumiBot, asisten AI BuildUMKM.\n\nSaya bisa membantu Anda dengan:\n\nKonsultasi website untuk bisnis Anda\nRekomendasi paket dan fitur yang sesuai\nInformasi harga mulai dari Rp 500rb\nStrategi digital marketing untuk UMKM\n\nAda yang bisa saya bantu?',
+      timestamp: new Date()
+    };
+    setMessages([initialMessage]);
+    localStorage.setItem('bumibot-messages', JSON.stringify([initialMessage]));
   };
 
   return (
@@ -170,10 +305,10 @@ Berikan jawaban yang ramah, profesional, dan mudah dipahami oleh UMKM. Gunakan b
       <AnimatePresence>
         {isOpen && (
           <div
-            className="fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden transition-all duration-300"
+            className="fixed bottom-6 right-6 w-[420px] bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden transition-all duration-300"
             style={{ 
               maxHeight: '90vh',
-              height: isMinimized ? 'auto' : '600px'
+              height: isMinimized ? 'auto' : '650px'
             }}
           >
             {/* Header */}
@@ -191,6 +326,13 @@ Berikan jawaban yang ramah, profesional, dan mudah dipahami oleh UMKM. Gunakan b
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={resetChat}
+                  className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+                  title="Mulai percakapan baru"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
@@ -233,7 +375,19 @@ Berikan jawaban yang ramah, profesional, dan mudah dipahami oleh UMKM. Gunakan b
                               ? 'bg-purple-600 text-white rounded-tr-none'
                               : 'bg-white text-gray-800 rounded-tl-none shadow-sm'
                           }`}>
-                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                            {/* Streaming bot message: show word-by-word with smooth fade-in */}
+                            {message.isStreaming ? (
+                              <span className="text-sm whitespace-pre-wrap">
+                                {message.content.split(/(\s+)/).map((word, idx) => (
+                                  word.trim() === ''
+                                    ? word
+                                    : <span key={idx} className="animate-fade-in">{word}</span>
+                                ))}
+                                <span className="inline-block w-1.5 h-4 bg-purple-600 ml-1 align-middle" style={{ animation: 'blink 1s infinite' }}></span>
+                              </span>
+                            ) : (
+                              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                            )}
                           </div>
                           <p className={`text-xs text-gray-500 mt-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
                             {formatTime(message.timestamp)}
