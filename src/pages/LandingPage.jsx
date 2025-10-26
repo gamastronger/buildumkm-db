@@ -238,7 +238,7 @@ const LandingPage = () => {
                 Tentang <span className="text-purple-600">BuildUMKM</span>
               </h2>
               <p className="text-lg text-gray-600 mb-4">
-                BuildUMKM adalah platform digital yang menghubungkan pelaku UMKM dengan developer lokal 
+                BuildUMKM adalah platform digital yang menghubungkan pelaku UMKM dengan developer mahasiswa lokal 
                 berbakat untuk menciptakan website bisnis yang profesional dan terjangkau.
               </p>
               <p className="text-lg text-gray-600 mb-6">
