@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+AUTH_GUIDE.md
+IMPLEMENTATION_SUMMARY.md
+CREDENTIALS.md
