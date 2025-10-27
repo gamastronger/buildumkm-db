@@ -173,7 +173,7 @@ const DashboardUMKM = () => {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Template Rekomendasi</h3>
-              <Link to="/template-library" className="text-purple-600 hover:text-purple-700 font-medium">
+              <Link to="/pilihan-tema" className="text-purple-600 hover:text-purple-700 font-medium">
                 Lihat Semua →
               </Link>
             </div>

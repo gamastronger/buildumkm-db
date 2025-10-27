@@ -45,8 +45,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/template-library" className="text-gray-400 hover:text-purple-400 transition-colors">
-                  Template Library
+                <Link to="/pilihan-tema" className="text-gray-400 hover:text-purple-400 transition-colors">
+                  Pilihan Tema
                 </Link>
               </li>
             </ul>

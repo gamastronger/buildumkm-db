@@ -73,7 +73,7 @@ const Benefit = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <div className="pt-24 pb-20">
+      <div className="pt-24 pb-0">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-purple-50 to-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

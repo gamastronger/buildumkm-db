@@ -15,7 +15,6 @@ import Register from './pages/Register';
 import DashboardUMKM from './pages/DashboardUMKM';
 import DashboardDeveloper from './pages/DashboardDeveloper';
 import DashboardAdmin from './pages/DashboardAdmin';
-import TemplateLibrary from './pages/TemplateLibrary';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -31,7 +30,6 @@ function AnimatedRoutes() {
           <Route path="/harga-web" element={<PageTransition><HargaWeb /></PageTransition>} />
           <Route path="/pilihan-tema" element={<PageTransition><PilihanTema /></PageTransition>} />
           <Route path="/kontak" element={<PageTransition><Kontak /></PageTransition>} />
-          <Route path="/template-library" element={<PageTransition><TemplateLibrary /></PageTransition>} />
           
           {/* Guest Routes - redirect jika sudah login */}
           <Route 
