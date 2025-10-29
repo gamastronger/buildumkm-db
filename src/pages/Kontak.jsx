@@ -12,8 +12,22 @@ const Kontak = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Terima kasih! Pesan Anda telah dikirim. Kami akan segera menghubungi Anda.');
+    
+    // Format pesan WhatsApp dengan data dari form
+    const whatsappMessage = `Halo Admin%0ASaya ${formData.name}%0AEmail Saya ${formData.email}%0A%0A${formData.message}`;
+    
+    // URL WhatsApp dengan nomor dan pesan
+    const whatsappURL = `https://api.whatsapp.com/send?phone=6283112080715&text=${whatsappMessage}`;
+    
+    // Buka WhatsApp di tab baru
+    window.open(whatsappURL, '_blank');
+    
+    // Reset form setelah submit
+    setFormData({
+      name: '',
+      email: '',
+      message: ''
+    });
   };
 
   return (
