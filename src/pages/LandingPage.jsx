@@ -19,10 +19,15 @@ import { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import ChatBot from '../components/ChatBot';
 import gamaImg from '../assets/images/gama.webp';
-import webumkm from '../assets/images/webumkm.png';
 import logo from '../assets/images/logo.png';
 import LazyImage from '../components/LazyImage';
 import Footer from '../components/Footer';
+import Gis from '../assets/images/gis.png';
+import Grafistix from '../assets/images/grafistix.png';
+import patdua from '../assets/images/patdua.png';
+import koppi from '../assets/images/koppi.png';
+import tabungan from '../assets/images/tabungan.png';
+import mobile from '../assets/images/mobile.png'
 
 const LandingPage = () => {
   const canvasRef = useRef(null);
@@ -93,12 +98,12 @@ const LandingPage = () => {
 
   // Portfolio items for scrolling animation
   const portfolioItems = [
-  { id: 1, title: 'Kopi Nusantara', image: webumkm },
-  { id: 2, title: 'Batik Tradisional', image: webumkm },
-  { id: 3, title: 'Kuliner Lokal', image: webumkm },
-  { id: 4, title: 'Fashion UMKM', image: webumkm },
-  { id: 5, title: 'Kerajinan Tangan', image: webumkm },
-  { id: 6, title: 'Produk Organik', image: webumkm },
+  { id: 1, title: 'Event', image: Gis },
+  { id: 2, title: 'Jasa Digital', image: Grafistix },
+  { id: 3, title: 'Coffe', image: patdua },
+  { id: 4, title: 'Company', image:  mobile},
+  { id: 5, title: 'Administration', image: koppi },
+  { id: 6, title: 'Produk Organik', image: tabungan },
   ];
 
   const testimonials = [
