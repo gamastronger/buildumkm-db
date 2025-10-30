@@ -28,6 +28,7 @@ import patdua from '../assets/images/patdua.png';
 import koppi from '../assets/images/koppi.png';
 import tabungan from '../assets/images/tabungan.png';
 import mobile from '../assets/images/mobile.png'
+import dashulur from '../assets/images/dashulur.png';
 
 const LandingPage = () => {
   const canvasRef = useRef(null);
@@ -104,6 +105,7 @@ const LandingPage = () => {
   { id: 4, title: 'Company', image:  mobile},
   { id: 5, title: 'Administration', image: koppi },
   { id: 6, title: 'Produk Organik', image: tabungan },
+  { id: 7, title: 'Dashulur', image: dashulur },
   ];
 
   const testimonials = [

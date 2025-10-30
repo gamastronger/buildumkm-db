@@ -1,9 +1,12 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useState } from 'react';
-
-// ✅ Import gambar langsung dari folder src
-import GamaImage from '../assets/images/gama.webp';
+import kuliner from '../assets/images/kuliner.webp';
+import fashion from '../assets/images/fashion.webp';
+import fashion2 from '../assets/images/fashion2.png';
+import kerajinan from '../assets/images/kerajinan.jpg';
+import jasa from '../assets/images/grafistix.png';
+import ecommerce from '../assets/images/e-commerce.webp';
 
 const PilihanTema = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -17,71 +20,51 @@ const PilihanTema = () => {
     { id: 'ecommerce', name: 'E-commerce' }
   ];
 
-  // ✅ Gunakan gambar hasil import agar React bisa membaca path-nya
+  
+
   const templates = [
     {
       id: 1,
       name: 'Kuliner Modern',
       category: 'kuliner',
-      image: GamaImage,
+      image: kuliner,
       preview: '#'
     },
     {
       id: 2,
       name: 'Fashion Minimalis',
       category: 'fashion',
-      image: GamaImage,
+      image: fashion2,
       preview: '#'
     },
     {
       id: 3,
       name: 'Kerajinan Tradisional',
       category: 'kerajinan',
-      image: GamaImage,
+      image: kerajinan,
       preview: '#'
     },
     {
       id: 4,
-      name: 'Kopi Nusantara',
-      category: 'kuliner',
-      image: GamaImage,
+      name: 'Batik Store',
+      category: 'fashion',
+      image: fashion,
       preview: '#'
     },
     {
       id: 5,
-      name: 'Batik Store',
-      category: 'fashion',
-      image: GamaImage,
+      name: 'Laundry Service',
+      category: 'jasa',
+      image: jasa,
       preview: '#'
     },
     {
       id: 6,
-      name: 'Laundry Service',
-      category: 'jasa',
-      image: GamaImage,
-      preview: '#'
-    },
-    {
-      id: 7,
       name: 'Organic Shop',
       category: 'ecommerce',
-      image: GamaImage,
+      image: ecommerce,
       preview: '#'
     },
-    {
-      id: 8,
-      name: 'Salon & Spa',
-      category: 'jasa',
-      image: GamaImage,
-      preview: '#'
-    },
-    {
-      id: 9,
-      name: 'Handmade Craft',
-      category: 'kerajinan',
-      image: GamaImage,
-      preview: '#'
-    }
   ];
 
   const filteredTemplates =

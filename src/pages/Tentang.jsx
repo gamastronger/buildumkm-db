@@ -1,3 +1,4 @@
+import teamImg from '../assets/images/team+.png';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Users, Target, Award, Heart } from 'lucide-react';
@@ -69,9 +70,10 @@ const Tentang = () => {
               </div>
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600"
+                  src={teamImg}
                   alt="Team BuildUMKM"
                   className="rounded-2xl shadow-xl"
+                  loading="lazy"
                 />
               </div>
             </div>
