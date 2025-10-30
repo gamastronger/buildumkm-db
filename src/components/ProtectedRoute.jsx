@@ -20,7 +20,7 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     // Redirect ke dashboard sesuai role jika akses tidak diizinkan
     const redirectPaths = {
-      'umkm': '/dashboard-umkm',
+      'user': '/dashboard-umkm',
       'developer': '/dashboard-developer',
       'admin': '/dashboard-admin'
     };
@@ -44,7 +44,7 @@ export const GuestRoute = ({ children }) => {
 
   if (user) {
     const redirectPaths = {
-      'umkm': '/dashboard-umkm',
+      'user': '/dashboard-umkm',
       'developer': '/dashboard-developer',
       'admin': '/dashboard-admin'
     };

@@ -1,9 +1,13 @@
-import { Link } from 'react-router-dom';
-import { Mail, Lock, User, Building, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, User, Building, ArrowRight, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../context/useAuth';
+import authService from '../services/authService';
 
 const Register = () => {
-  const [userType, setUserType] = useState('umkm');
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [userType, setUserType] = useState('user');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,10 +16,51 @@ const Register = () => {
     businessName: '',
     phone: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Register attempt:', { ...formData, userType });
+    setError('');
+
+    // Validasi password match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Password dan konfirmasi password tidak cocok!');
+      return;
+    }
+
+    // Validasi panjang password
+    if (formData.password.length < 6) {
+      setError('Password minimal 6 karakter!');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Prepare data untuk register
+      const registerData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: userType, // 'user' atau 'developer'
+      };
+
+      const response = await authService.register(registerData);
+      
+      if (response.user) {
+        // Auto login setelah register
+        login(response.user);
+        
+        // Redirect ke dashboard sesuai role
+        const redirectPath = userType === 'user' ? '/dashboard-umkm' : '/dashboard-developer';
+        navigate(redirectPath);
+      }
+    } catch (err) {
+      setError(err.message || 'Registrasi gagal. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,19 +82,27 @@ const Register = () => {
 
         {/* Register Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-700">
+              <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+
           {/* User Type Selection */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             <button
               type="button"
-              onClick={() => setUserType('umkm')}
+              onClick={() => setUserType('user')}
               className={`p-4 rounded-xl border-2 transition-all ${
-                userType === 'umkm'
+                userType === 'user'
                   ? 'border-purple-600 bg-purple-50'
                   : 'border-gray-200 hover:border-purple-300'
               }`}
             >
-              <Building className={`w-8 h-8 mx-auto mb-2 ${userType === 'umkm' ? 'text-purple-600' : 'text-gray-400'}`} />
-              <p className={`font-semibold ${userType === 'umkm' ? 'text-purple-600' : 'text-gray-600'}`}>
+              <Building className={`w-8 h-8 mx-auto mb-2 ${userType === 'user' ? 'text-purple-600' : 'text-gray-400'}`} />
+              <p className={`font-semibold ${userType === 'user' ? 'text-purple-600' : 'text-gray-600'}`}>
                 Saya UMKM
               </p>
               <p className="text-xs text-gray-500 mt-1">Butuh website untuk bisnis</p>
@@ -90,10 +143,10 @@ const Register = () => {
                 </div>
               </div>
 
-              {userType === 'umkm' && (
+              {userType === 'user' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Bisnis
+                    Nama Bisnis (Opsional)
                   </label>
                   <div className="relative">
                     <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -103,7 +156,6 @@ const Register = () => {
                       onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                       className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
                       placeholder="Nama UMKM Anda"
-                      required={userType === 'umkm'}
                     />
                   </div>
                 </div>
@@ -181,10 +233,20 @@ const Register = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center group"
+              disabled={loading}
+              className="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Daftar Sekarang
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  Daftar Sekarang
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </form>
 

@@ -53,7 +53,7 @@ function AnimatedRoutes() {
           <Route 
             path="/dashboard-umkm" 
             element={
-              <ProtectedRoute allowedRoles={['umkm']}>
+              <ProtectedRoute allowedRoles={['user']}>
                 <PageTransition><DashboardUMKM /></PageTransition>
               </ProtectedRoute>
             } 

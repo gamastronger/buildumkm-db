@@ -9,23 +9,33 @@ import {
   Sparkles
 } from 'lucide-react';
 import ChatBot from '../components/ChatBot';
+import { useAuth } from '../context/useAuth';
+import authService from '../services/authService';
 
 const DashboardUMKM = () => {
   const navigate = useNavigate();
-  const handleLogout = () => {
-    navigate('/login');
+  const { user, logout } = useAuth();
+  
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Tetap logout di frontend meskipun backend error
+      logout();
+      navigate('/login');
+    }
   };
 
-  const projects = [
-    { id: 1, name: 'Website Batik Siti', status: 'Selesai', progress: 100 },
-    { id: 2, name: 'Landing Page Kopi Nusantara', status: 'Dikerjakan', progress: 65 },
-  ];
-
-  const templates = [
-    { id: 1, name: 'Template Modern', image: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=400' },
-    { id: 2, name: 'Template Minimalis', image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400' },
-    { id: 3, name: 'Template Elegan', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400' },
-  ];
+  // Format tanggal bergabung
+  const getMemberSince = () => {
+    if (!user?.created_at) return 'Baru bergabung';
+    const date = new Date(user.created_at);
+    const options = { year: 'numeric', month: 'long' };
+    return `Member sejak ${date.toLocaleDateString('id-ID', options)}`;
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -92,9 +102,9 @@ const DashboardUMKM = () => {
                   <User className="w-8 h-8" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Batik Siti</h2>
-                  <p className="text-purple-100">Ibu Siti Nurhaliza</p>
-                  <p className="text-sm text-purple-200 mt-1">Member sejak Januari 2025</p>
+                  <h2 className="text-2xl font-bold">{user?.name || 'Pengguna UMKM'}</h2>
+                  <p className="text-purple-100">{user?.email || ''}</p>
+                  <p className="text-sm text-purple-200 mt-1">{getMemberSince()}</p>
                 </div>
               </div>
               <button className="px-6 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition">
@@ -109,7 +119,7 @@ const DashboardUMKM = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Total Proyek</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">2</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">0</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   <FolderOpen className="w-6 h-6 text-purple-600" />
@@ -120,7 +130,7 @@ const DashboardUMKM = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Proyek Selesai</p>
-                  <p className="text-3xl font-bold text-green-600 mt-1">1</p>
+                  <p className="text-3xl font-bold text-green-600 mt-1">0</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-green-600" />
@@ -131,7 +141,7 @@ const DashboardUMKM = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Dalam Progress</p>
-                  <p className="text-3xl font-bold text-blue-600 mt-1">1</p>
+                  <p className="text-3xl font-bold text-blue-600 mt-1">0</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <MessageCircle className="w-6 h-6 text-blue-600" />
@@ -143,29 +153,16 @@ const DashboardUMKM = () => {
           {/* Project Status */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Status Proyek</h3>
-            <div className="space-y-4">
-              {projects.map((project) => (
-                <div key={project.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{project.name}</h4>
-                      <p className="text-sm text-gray-600">{project.status}</p>
-                    </div>
-                    {project.status === 'Selesai' && (
-                      <button className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
-                        Lihat Website Jadi
-                      </button>
-                    )}
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${project.status === 'Selesai' ? 'bg-green-500' : 'bg-blue-500'}`}
-                      style={{ width: `${project.progress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-2">{project.progress}% Selesai</p>
-                </div>
-              ))}
+            <div className="text-center py-12">
+              <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-lg mb-2">Belum ada proyek</p>
+              <p className="text-gray-400 text-sm mb-6">Mulai proyek pertama Anda dengan memilih template di bawah</p>
+              <button 
+                onClick={() => navigate('/pilihan-tema')}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition"
+              >
+                Buat Proyek Baru
+              </button>
             </div>
           </div>
 
@@ -177,20 +174,9 @@ const DashboardUMKM = () => {
                 Lihat Semua →
               </Link>
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
-              {templates.map((template) => (
-                <div key={template.id} className="group cursor-pointer">
-                  <div className="aspect-video rounded-lg overflow-hidden mb-2">
-                    <img
-                      src={template.image}
-                      alt={template.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="font-medium text-gray-900">{template.name}</p>
-                </div>
-              ))}
-            </div>
+            <p className="text-gray-500 text-center py-8">
+              Template akan tersedia setelah Anda memulai proyek pertama
+            </p>
           </div>
         </div>
       </div>

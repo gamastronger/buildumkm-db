@@ -1,12 +1,23 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/useAuth';
-import { authenticateUser, getRedirectPath } from '../data/dummyUsers';
+import authService from '../services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
+  // Redirect otomatis jika user sudah login dan akses /login
+  useEffect(() => {
+    if (user) {
+      let redirectPath = '/';
+      if (user.role === 'user') redirectPath = '/dashboard-umkm';
+      else if (user.role === 'developer') redirectPath = '/dashboard-developer';
+      else if (user.role === 'admin') redirectPath = '/dashboard-admin';
+      navigate(redirectPath, { replace: true });
+    }
+  }, [user, navigate]);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -19,29 +30,44 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const user = authenticateUser(formData.email, formData.password);
-      
-      if (user) {
-        login(user);
-        const redirectPath = getRedirectPath(user.role);
+    try {
+      const response = await authService.login(formData);
+      if (response && response.user) {
+        login(response.user);
+        const redirectPath = response.redirect || '/';
         navigate(redirectPath);
-      } else {
-        setError('Email atau password salah!');
+      } else if (response && response.data && response.data.user) {
+        login(response.data.user);
+        const redirectPath = response.data.redirect || '/';
+        navigate(redirectPath);
       }
-      
+    } catch (err) {
+      setError(err.message || 'Login gagal. Silakan coba lagi.');
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
-  const handleDemoLogin = (email, password) => {
+  const handleDemoLogin = async (email, password) => {
     setFormData({ email, password });
-    const user = authenticateUser(email, password);
-    if (user) {
-      login(user);
-      const redirectPath = getRedirectPath(user.role);
-      navigate(redirectPath);
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await authService.login({ email, password });
+      if (response && response.user) {
+        login(response.user);
+        const redirectPath = response.redirect || '/';
+        navigate(redirectPath);
+      } else if (response && response.data && response.data.user) {
+        login(response.data.user);
+        const redirectPath = response.data.redirect || '/';
+        navigate(redirectPath);
+      }
+    } catch (err) {
+      setError(err.message || 'Login gagal. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,34 +176,29 @@ const Login = () => {
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => handleDemoLogin('umkm@test.com', 'umkm123')}
+                onClick={() => handleDemoLogin('umkm@test.com', 'password123')}
                 className="w-full px-4 py-3 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition text-left"
+                disabled={loading}
               >
                 <div className="font-semibold">UMKM Demo</div>
-                <div className="text-xs text-purple-500">umkm@test.com / umkm123</div>
+                <div className="text-xs text-purple-500">umkm@test.com / password123</div>
               </button>
               <button
                 type="button"
-                onClick={() => handleDemoLogin('developer@test.com', 'dev123')}
+                onClick={() => handleDemoLogin('developer@test.com', 'password123')}
                 className="w-full px-4 py-3 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition text-left"
+                disabled={loading}
               >
                 <div className="font-semibold">Developer Demo</div>
-                <div className="text-xs text-blue-500">developer@test.com / dev123</div>
+                <div className="text-xs text-blue-500">developer@test.com / password123</div>
               </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('admin@test.com', 'admin123')}
-                className="w-full px-4 py-3 bg-green-50 text-green-600 rounded-lg text-sm font-medium hover:bg-green-100 transition text-left"
-              >
-                <div className="font-semibold">Admin Demo</div>
-                <div className="text-xs text-green-500">admin@test.com / admin123</div>
-              </button>
+              
             </div>
           </div>
         </div>
 
         <div className="mt-6 text-center">
-          <Link to="/" className="text-sm text-gray-600 hover:text-purple-600 transition">
+          <Link to="/" className="text-sm text-[#0047C2] hover:text-purple-600 transition">
             ← Kembali ke Beranda
           </Link>
         </div>

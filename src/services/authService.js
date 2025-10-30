@@ -1,48 +1,71 @@
-import { api } from '../utils/apiClient';
-import API_ENDPOINTS from '../config/api.config';
+/**
+ * Authentication Service - PHP Backend Integration
+ * Handle semua API calls terkait autentikasi ke PHP backend
+ */
+
+// Tidak perlu base URL, gunakan path relatif agar Vite proxy bekerja
+const PHP_BACKEND_URL = '';
 
 /**
- * Authentication Service
- * Handle semua API calls terkait autentikasi
+ * Helper function untuk fetch dengan credentials
  */
+const fetchWithCredentials = async (url, options = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    credentials: 'include', // Important untuk session cookies
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Request failed');
+  }
+
+  return data;
+};
 
 export const authService = {
   /**
    * Login user
    * @param {Object} credentials - { email, password }
-   * @returns {Promise} User data dan token
+   * @returns {Promise} User data
    */
   login: async (credentials) => {
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
-      const { user, token, refreshToken } = response.data;
+  const response = await fetchWithCredentials(`/auth/login.php`, {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
 
-      // Store token dan user data
-      localStorage.setItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'buildumkm_token', token);
-      localStorage.setItem(import.meta.env.VITE_AUTH_STORAGE_KEY || 'buildumkm_user', JSON.stringify(user));
-      
-      if (refreshToken) {
-        localStorage.setItem('buildumkm_refresh_token', refreshToken);
-      }
-
-      return { user, token };
-    } catch (error) {
-      throw error.response?.data || error;
+    // Store user data di localStorage
+    if (response.data && response.data.user) {
+      localStorage.setItem('buildumkm_user', JSON.stringify(response.data.user));
     }
+
+    return response.data;
   },
 
   /**
    * Register new user
-   * @param {Object} userData - { name, email, password, role, businessName, etc }
+   * @param {Object} userData - { name, email, password, role }
    * @returns {Promise} User data
    */
   register: async (userData) => {
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, userData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
+    // register.php is the actual PHP endpoint
+  const response = await fetchWithCredentials(`/auth/register.php`, {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+
+    // Store user data di localStorage setelah register (auto-login)
+    if (response.data && response.data.user) {
+      localStorage.setItem('buildumkm_user', JSON.stringify(response.data.user));
     }
+
+    return response.data;
   },
 
   /**
@@ -51,92 +74,55 @@ export const authService = {
    */
   logout: async () => {
     try {
-      await api.post(API_ENDPOINTS.AUTH.LOGOUT);
-      
+  await fetchWithCredentials(`/auth/logout.php`, {
+        method: 'POST',
+      });
+
       // Clear storage
-      localStorage.removeItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'buildumkm_token');
-      localStorage.removeItem(import.meta.env.VITE_AUTH_STORAGE_KEY || 'buildumkm_user');
-      localStorage.removeItem('buildumkm_refresh_token');
+      localStorage.removeItem('buildumkm_user');
     } catch (error) {
       // Tetap clear storage meskipun API error
-      localStorage.removeItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'buildumkm_token');
-      localStorage.removeItem(import.meta.env.VITE_AUTH_STORAGE_KEY || 'buildumkm_user');
-      localStorage.removeItem('buildumkm_refresh_token');
-      
-      throw error.response?.data || error;
+      localStorage.removeItem('buildumkm_user');
+      throw error;
     }
   },
 
   /**
-   * Get current user data
+   * Check session - cek apakah user masih login
    * @returns {Promise} User data
    */
-  getCurrentUser: async () => {
+  checkSession: async () => {
     try {
-      const response = await api.get(API_ENDPOINTS.AUTH.ME);
+  const response = await fetchWithCredentials(`/auth/check-session.php`, {
+        method: 'GET',
+      });
+
+      // Update localStorage dengan data terbaru
+      if (response.data && response.data.user) {
+        localStorage.setItem('buildumkm_user', JSON.stringify(response.data.user));
+      }
+
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      // Clear storage jika session tidak valid
+      localStorage.removeItem('buildumkm_user');
+      throw error;
     }
   },
 
   /**
-   * Refresh token
-   * @returns {Promise} New token
+   * Get current user dari localStorage
+   * @returns {Object|null} User data atau null
    */
-  refreshToken: async () => {
+  getCurrentUserFromStorage: () => {
+    const userStr = localStorage.getItem('buildumkm_user');
+    if (!userStr) return null;
+    
     try {
-      const refreshToken = localStorage.getItem('buildumkm_refresh_token');
-      const response = await api.post(API_ENDPOINTS.AUTH.REFRESH_TOKEN, { refreshToken });
-      
-      const { token } = response.data;
-      localStorage.setItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'buildumkm_token', token);
-      
-      return token;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  /**
-   * Verify email
-   * @param {string} token - Verification token
-   * @returns {Promise}
-   */
-  verifyEmail: async (token) => {
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { token });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  /**
-   * Forgot password
-   * @param {string} email - User email
-   * @returns {Promise}
-   */
-  forgotPassword: async (email) => {
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  /**
-   * Reset password
-   * @param {Object} data - { token, newPassword }
-   * @returns {Promise}
-   */
-  resetPassword: async (data) => {
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
+      return JSON.parse(userStr);
+    } catch {
+      localStorage.removeItem('buildumkm_user');
+      return null;
     }
   },
 };
