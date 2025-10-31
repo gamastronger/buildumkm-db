@@ -8,7 +8,7 @@ import authService from '../services/authService';
 const Login = () => {
   const navigate = useNavigate();
   const { user, login } = useAuth();
-  // Redirect otomatis jika user sudah login dan akses /login
+
   useEffect(() => {
     if (user) {
       let redirectPath = '/';
@@ -48,28 +48,28 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = async (email, password) => {
-    setFormData({ email, password });
-    setError('');
-    setLoading(true);
+  // const handleDemoLogin = async (email, password) => {
+  //   setFormData({ email, password });
+  //   setError('');
+  //   setLoading(true);
 
-    try {
-      const response = await authService.login({ email, password });
-      if (response && response.user) {
-        login(response.user);
-        const redirectPath = response.redirect || '/';
-        navigate(redirectPath);
-      } else if (response && response.data && response.data.user) {
-        login(response.data.user);
-        const redirectPath = response.data.redirect || '/';
-        navigate(redirectPath);
-      }
-    } catch (err) {
-      setError(err.message || 'Login gagal. Silakan coba lagi.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   try {
+  //     const response = await authService.login({ email, password });
+  //     if (response && response.user) {
+  //       login(response.user);
+  //       const redirectPath = response.redirect || '/';
+  //       navigate(redirectPath);
+  //     } else if (response && response.data && response.data.user) {
+  //       login(response.data.user);
+  //       const redirectPath = response.data.redirect || '/';
+  //       navigate(redirectPath);
+  //     }
+  //   } catch (err) {
+  //     setError(err.message || 'Login gagal. Silakan coba lagi.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex items-center justify-center p-4">
