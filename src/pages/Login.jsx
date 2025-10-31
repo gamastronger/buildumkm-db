@@ -170,31 +170,7 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Quick Access */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 text-center mb-4">Demo Login Cepat</p>
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('umkm@test.com', 'password123')}
-                className="w-full px-4 py-3 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition text-left"
-                disabled={loading}
-              >
-                <div className="font-semibold">UMKM Demo</div>
-                <div className="text-xs text-purple-500">umkm@test.com / password123</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('developer@test.com', 'password123')}
-                className="w-full px-4 py-3 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition text-left"
-                disabled={loading}
-              >
-                <div className="font-semibold">Developer Demo</div>
-                <div className="text-xs text-blue-500">developer@test.com / password123</div>
-              </button>
-              
-            </div>
-          </div>
+          
         </div>
 
         <div className="mt-6 text-center">

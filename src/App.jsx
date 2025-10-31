@@ -15,6 +15,7 @@ import Register from './pages/Register';
 import DashboardUMKM from './pages/DashboardUMKM';
 import DashboardDeveloper from './pages/DashboardDeveloper';
 import DashboardAdmin from './pages/DashboardAdmin';
+import Panduan from './pages/Panduan';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -74,6 +75,7 @@ function AnimatedRoutes() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/panduan" element={<PageTransition><Panduan /></PageTransition>} />
         </Routes>
       </AnimatePresence>
     </>
